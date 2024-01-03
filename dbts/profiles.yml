@@ -1,0 +1,32 @@
+trino:
+  target: local
+  outputs:
+    # Profile trino.local
+    local:
+      type: trino
+      method: none
+      user: 1ambda@github
+      password:
+      host: localhost
+      port: 8889
+      catalog: iceberg
+      schema: default
+      threads: 1
+      http_scheme: http
+      session_properties:
+        query_max_run_time: 1h
+
+    # Profile trino.dev
+    dev:
+      type: trino
+      method: none
+      user: airflow@system
+      password:
+      host: trino
+      port: 8889
+      catalog: iceberg
+      schema: default
+      threads: 1
+      http_scheme: http
+      session_properties:
+        query_max_run_time: 1h

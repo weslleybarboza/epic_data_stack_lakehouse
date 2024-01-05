@@ -131,11 +131,10 @@ services:
   # Trino
   ####################################################################################################
   trino:
-    profiles: [ "trino" ]
+    profiles: [ "trino", "storage"  ]
     container_name: trino
     hostname: trino
     image: "trinodb/trino:425"
-    profiles: [ "storage" ]    
     restart: always
     ports:
       - "8889:8889"
@@ -146,11 +145,10 @@ services:
       - hive-metastore
 
   trino-worker:
-    profiles: [ "trino-worker" ]
+    profiles: [ "trino-worker", "storage"  ]
     container_name: trino-worker
     hostname: trino-worker
     image: "trinodb/trino:425"
-    profiles: [ "storage" ]    
     restart: always
     volumes:
       - ./docker/trino/etc-worker:/etc/trino
@@ -163,10 +161,10 @@ services:
   ####################################################################################################
   spark-iceberg:
     profiles: [ "spark" ]
-    build:
-      context: ./docker/spark/
-      dockerfile: Dockerfile-spark3.4
-    image: 1ambda/lakehouse:spark-3.4
+    # build:
+    #   context: ./docker/spark/
+    #   dockerfile: Dockerfile-spark3.4
+    image: weslleybarboza/spark-3.4:latest
     container_name: spark-iceberg
     hostname: spark-iceberg
     entrypoint: |
@@ -199,10 +197,10 @@ services:
 
   spark-hudi:
     profiles: [ "spark-hudi" ]
-    build:
-      context: ./docker/spark/
-      dockerfile: Dockerfile-spark3.3
-    image: 1ambda/lakehouse:spark-3.3
+    # build:
+    #   context: ./docker/spark/
+    #   dockerfile: Dockerfile-spark3.3
+    image: weslleybarboza/flink-1.16:latest
     container_name: spark-hudi
     hostname: spark-hudi
     entrypoint: |

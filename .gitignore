@@ -259,3 +259,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+#### data example
+/datasources/*

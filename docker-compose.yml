@@ -65,7 +65,6 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-
   minio:
     container_name: minio
     hostname: minio
@@ -81,7 +80,6 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - ./docker/volume/minio:/data
-
   minio-job:
     image: 'minio/mc'
     profiles: [ "storage" , "nifi"]    
@@ -102,7 +100,6 @@ services:
       - S3_PATH_STYLE_ACCESS=true
     depends_on:
       - minio
-
   hive-metastore:
     container_name: hive-metastore
     hostname: hive-metastore
@@ -131,7 +128,7 @@ services:
   # Trino
   ####################################################################################################
   trino:
-    profiles: [ "trino", "storage"  ]
+    profiles: [ "trino", "storage", "nifi" ]
     container_name: trino
     hostname: trino
     image: "trinodb/trino:425"
@@ -143,9 +140,8 @@ services:
       - ./docker/trino/catalog:/etc/trino/catalog
     depends_on:
       - hive-metastore
-
   trino-worker:
-    profiles: [ "trino-worker", "storage"  ]
+    profiles: [ "trino-worker", "storage", "nifi" ]
     container_name: trino-worker
     hostname: trino-worker
     image: "trinodb/trino:425"
@@ -216,7 +212,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
   airflow-scheduler:
     <<: *airflow-common
     profiles: [ "airflow" ]
@@ -233,7 +228,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
   airflow-worker:
     <<: *airflow-common
     profiles: [ "airflow" ]
@@ -255,24 +249,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
-  # airflow-triggerer:
-  #   <<: *airflow-common
-  #   profiles: [ "airflow" ]
-  #   container_name: airflow-triggerer
-  #   command: triggerer
-  #   healthcheck:
-  #     test: [ "CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"' ]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #     start_period: 30s
-  #   restart: always
-  #   depends_on:
-  #     <<: *airflow-common-depends-on
-  #     airflow-init:
-  #       condition: service_completed_successfully
-
   airflow-cli:
     <<: *airflow-common
     container_name: airflow-cli
@@ -285,7 +261,6 @@ services:
       - bash
       - -c
       - airflow
-
   airflow-init:
     <<: *airflow-common
     profiles: [ "airflow" ]
@@ -307,7 +282,6 @@ services:
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
-
   redis:
     profiles: [ "airflow" ]
     container_name: redis
@@ -323,6 +297,9 @@ services:
       start_period: 30s
     restart: always
 
+  ####################################################################################################
+  # Nifi
+  ####################################################################################################
   nifi:
     profiles: [ "nifi" ]
     image: apache/nifi:latest
@@ -330,27 +307,20 @@ services:
     ports:
       - '8443:8443'
     volumes:
-      - ./docker/volume/nifi/jdbc:/opt/jdbc
+      - ./docker/nifi/jdbc:/opt/jdbc
       - nifi_data:/opt/nifi/data
-#      - ./volumes/nifi/certs:/opt/certs
-#      - ./volumes/nifi/logs:/opt/nifi/logs
-      - ./docker/volume/nifi/properties:/opt/nifi/nifi-current/properties  #credentials.properties
+#      - ./docker/nifi/certs:/opt/certs
+#      - ./docker/nifi/logs:/opt/nifi/logs
+      - ./docker/nifi/properties:/opt/nifi/nifi-current/properties  #credentials.properties
       - nifi_database_repository:/opt/nifi/nifi-current/database_repository
       - nifi_flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
       - nifi_content_repository:/opt/nifi/nifi-current/content_repository
       - nifi_provenance_repository:/opt/nifi/nifi-current/provenance_repository
-      - ../../../datasources:/opt/nifi/sources
+      - ./datasources:/opt/nifi/sources
     environment:
       NIFI_WEB_HTTP_PORT: 8443
-
-#      NIFI_WEB_HTTPS_PORT: 8443
-#      SINGLE_USER_CREDENTIALS_USERNAME: Admin
-#      SINGLE_USER_CREDENTIALS_PASSWORD: 123456789012
-
-#      https://localhost:8443/nifi/
-#      ./bin/nifi.sh set-single-user-credentials admin "123456789012"
-
-#controle de versão para o nifi
+      SINGLE_USER_CREDENTIALS_USERNAME: nifi
+      SINGLE_USER_CREDENTIALS_PASSWORD: nifi123
   nifi-registry:
     profiles: [ "nifi" ]
     image: apache/nifi-registry:latest
@@ -361,15 +331,15 @@ services:
      - ./docker/volume/nifi-registry/data:/data
      - ./docker/volume/nifi-registry/database:/opt/nifi-registry/nifi-registry-current/database
      - ./docker/volume/nifi-registry//flow_storage:/opt/nifi-registry/nifi-registry-current/flow_storage
-#     - ./volumes/nifi-registry/nifi-registry:/opt/nifi-registry/nifi-registry-current/nifi-registry
-#     - ./volumes/nifi-registry/certs:/opt/certs
+     - ./volumes/nifi-registry/nifi-registry:/opt/nifi-registry/nifi-registry-current/nifi-registry
+     - ./volumes/nifi-registry/certs:/opt/certs
     environment:
       NIFI_REGISTRY_WEB_HTTP_PORT: 18080
-#      NIFI_REGISTRY_FLOW_PROVIDER: git
-#      NIFI_REGISTRY_GIT_REMOTE_URL: https://github.com/diretoriorio_remoto.git
-#      NIFI_REGISTRY_GIT_USER: xxx
-#      NIFI_REGISTRY_GIT_PASSWORD: token
-#      NIFI_REGISTRY_GIT_REPO: /opt/nifi-registry/nifi-registry-current/nifi-registry
+      NIFI_REGISTRY_FLOW_PROVIDER: git
+      NIFI_REGISTRY_GIT_REMOTE_URL: https://github.com/weslleybarboza/nifi_registry.git
+      NIFI_REGISTRY_GIT_USER: weslleybarboza
+      NIFI_REGISTRY_GIT_PASSWORD: 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
+      NIFI_REGISTRY_GIT_REPO: /opt/nifi-registry/nifi-registry-current/nifi-registry
 
 volumes:
   nifi_jdbc:

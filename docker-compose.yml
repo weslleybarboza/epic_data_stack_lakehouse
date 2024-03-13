@@ -3,7 +3,10 @@ version: "3.9"
 # Configure modules
 x-airflow-common:
   &airflow-common
-  image: apache/airflow:2.7.0-python3.10
+  build:
+    context: .
+    dockerfile: Dockerfile
+  # image: apache/airflow:2.7.0-python3.10
   environment:
     &airflow-common-env
     S3_ENDPOINT: http://minio:9000
@@ -21,12 +24,15 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS: 'false'
-    AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: Asia/Seoul
-    AIRFLOW__CORE__DEFAULT_TIMEZONE: Asia/Seoul
+    AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: Europe/Malta
+    AIRFLOW__CORE__DEFAULT_TIMEZONE: Europe/Malta
     AIRFLOW_UID: '50000'
     _AIRFLOW_WWW_USER_USERNAME: airflow
     _AIRFLOW_WWW_USER_PASSWORD: airflow
-    _PIP_ADDITIONAL_REQUIREMENTS: apache-airflow==2.7.0 dbt-core dbt-trino trino airflow-dbt
+    # Using dockerfile instead of _PIP_ADDITIONAL_REQUIREMENTS;
+    # WARNING: This is a development/test feature only. NEVER use it in production!
+    # the container starts, so it is only useful for testing and trying out of adding dependencies.
+    # _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- dbt-core dbt-trino trino airflow-dbt}
   volumes:
     - ./dags:/opt/airflow/dags
     - ./dbts:/opt/airflow/dbts
@@ -231,6 +237,7 @@ services:
   airflow-worker:
     <<: *airflow-common
     profiles: [ "airflow" ]
+    hostname: airflow-worker
     container_name: airflow-worker
     command: celery worker
     healthcheck:
@@ -309,8 +316,8 @@ services:
     volumes:
       - ./docker/nifi/jdbc:/opt/jdbc
       - nifi_data:/opt/nifi/data
-#      - ./docker/nifi/certs:/opt/certs
-#      - ./docker/nifi/logs:/opt/nifi/logs
+    #  - ./docker/nifi/certs:/opt/certs
+    #  - ./docker/nifi/logs:/opt/nifi/logs
       - ./docker/nifi/properties:/opt/nifi/nifi-current/properties  #credentials.properties
       - nifi_database_repository:/opt/nifi/nifi-current/database_repository
       - nifi_flowfile_repository:/opt/nifi/nifi-current/flowfile_repository

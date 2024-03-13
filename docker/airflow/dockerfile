@@ -1,0 +1,6 @@
+FROM apache/airflow:2.7.0-python3.10
+
+# Install additional requirements
+COPY requirements.txt /
+# Needed for SSL verification issue
+RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir -r /requirements.txt

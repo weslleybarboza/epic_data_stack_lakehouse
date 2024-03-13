@@ -1,0 +1,4 @@
+dbt-core 
+dbt-trino 
+trino 
+airflow-dbt

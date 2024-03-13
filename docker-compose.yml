@@ -128,7 +128,7 @@ services:
   # Trino
   ####################################################################################################
   trino:
-    profiles: [ "trino", "storage", "nifi" ]
+    profiles: [ "trino", "storage" ]
     container_name: trino
     hostname: trino
     image: "trinodb/trino:425"
@@ -141,7 +141,7 @@ services:
     depends_on:
       - hive-metastore
   trino-worker:
-    profiles: [ "trino-worker", "storage", "nifi" ]
+    profiles: [ "trino-worker", "storage" ]
     container_name: trino-worker
     hostname: trino-worker
     image: "trinodb/trino:425"
@@ -326,7 +326,7 @@ services:
     image: apache/nifi-registry:latest
     container_name: nifi-registry
     ports:
-      - '18080:18080'
+      - '1808:18080'
     volumes:
      - ./docker/volume/nifi-registry/data:/data
      - ./docker/volume/nifi-registry/database:/opt/nifi-registry/nifi-registry-current/database
@@ -335,11 +335,11 @@ services:
      - ./volumes/nifi-registry/certs:/opt/certs
     environment:
       NIFI_REGISTRY_WEB_HTTP_PORT: 18080
-      NIFI_REGISTRY_FLOW_PROVIDER: git
-      NIFI_REGISTRY_GIT_REMOTE_URL: https://github.com/weslleybarboza/nifi_registry.git
-      NIFI_REGISTRY_GIT_USER: weslleybarboza
-      NIFI_REGISTRY_GIT_PASSWORD: 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
-      NIFI_REGISTRY_GIT_REPO: /opt/nifi-registry/nifi-registry-current/nifi-registry
+      # NIFI_REGISTRY_FLOW_PROVIDER: git
+      # NIFI_REGISTRY_GIT_REMOTE_URL: https://github.com/weslleybarboza/nifi_registry.git
+      # NIFI_REGISTRY_GIT_USER: weslleybarboza
+      # NIFI_REGISTRY_GIT_PASSWORD: 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
+      # NIFI_REGISTRY_GIT_REPO: /opt/nifi-registry/nifi-registry-current/nifi-registry
 
 volumes:
   nifi_jdbc:

@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: bscs_ccontact_all
+  - name: vw_bscs_ccontact_all
     description: raw data for ccontact_all
     tags:
       - bscs
@@ -11,7 +11,7 @@ models:
         tests:
           - not_null
 
-  - name: bscs_customer_all
+  - name: vw_bscs_customer_all
     description: raw data for customer_all
     tags:
       - bscs
@@ -24,7 +24,7 @@ models:
         tests:
           - not_null
 
-  - name: pscore_sgw
+  - name: vw_pscore_sgw
     description: raw data for data of the pscore network element
     tags:
       - pscore

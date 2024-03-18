@@ -333,7 +333,7 @@ services:
       SINGLE_USER_CREDENTIALS_USERNAME: nifi
       SINGLE_USER_CREDENTIALS_PASSWORD: nifi123
   nifi-registry:
-    profiles: [ "nifi" ]
+    profiles: [ "nifi-registry" ]
     image: apache/nifi-registry:latest
     container_name: nifi-registry
     ports:

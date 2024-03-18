@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: bscs_ccontact_all
+    description: raw data for ccontact_all
+    tags:
+      - bscs
+      - bronze
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+
+  - name: bscs_customer_all
+    description: raw data for customer_all
+    tags:
+      - bscs
+      - bronze
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+      - name: custcode
+        tests:
+          - not_null
+
+  - name: pscore_sgw
+    description: raw data for data of the pscore network element
+    tags:
+      - pscore
+      - bronze
+    columns:
+      - name: imsi
+        tests:
+          - not_null
+      - name: msisdn
+        tests:
+          - not_null

@@ -2,7 +2,17 @@ version: 2
 
 models:
   - name: dim_customer
-    description: dimension type scd1 with customer information
+    description: dimension type scd1 with customer information.
     tags:
       - bscs
       - silver
+    columns:
+      - name: natural_key
+        description: key of the source
+        tests:
+          - not_null
+      - name: business_key
+        description: key that the business knows
+        tests:
+          - not_null
+      

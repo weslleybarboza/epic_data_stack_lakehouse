@@ -33,7 +33,8 @@ models:
       +materialized: view
     silver:
       +schema: silver
-      +materialized: table      
+      +materialized: table
+      +file_format: 'orc'      
     mart:
       +schema: gold
       +materialized: table

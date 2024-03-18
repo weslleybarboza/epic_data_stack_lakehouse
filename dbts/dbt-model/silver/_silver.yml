@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: dimension type scd1 with customer information
+    tags:
+      - bscs
+      - silver

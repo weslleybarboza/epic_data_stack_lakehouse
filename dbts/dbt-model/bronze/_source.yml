@@ -285,6 +285,123 @@ sources:
           - name: error_desc
           - name: stg_record_load_date
   
+      - name: bscs_contr_services_cap
+        description: contracted services capability
+        columns:
+          - name: co_id
+          - name: sncode
+          - name: seqno
+          - name: seqno_pre
+          - name: bccode
+          - name: pending_bccode
+          - name: dn_id
+          - name: main_dirnum
+          - name: cs_status
+          - name: cs_activ_date
+          - name: cs_deactiv_date
+          - name: cs_request
+          - name: rec_version
+          - name: dn_block_id
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date        
+
+      - name: bscs_contract_all
+        description: information of the contract
+        columns:
+          - name: co_id
+          - name: customer_id
+          - name: type
+          - name: ohxact
+          - name: hrcode
+          - name: plcode
+          - name: sccode
+          - name: subm_id
+          - name: co_signed
+          - name: co_cancelled
+          - name: co_suspended
+          - name: co_reactivated
+          - name: co_status
+          - name: co_status_date
+          - name: co_requstatus
+          - name: co_requstatus_date
+          - name: co_rs_id
+          - name: co_equ_type
+          - name: co_rep_bill
+          - name: co_rep
+          - name: co_rep_bill_idno
+          - name: co_rep_idno
+          - name: co_installed
+          - name: co_itemized_bill
+          - name: co_ib_categories
+          - name: co_ib_threshold
+          - name: co_archive
+          - name: co_dir_entry
+          - name: co_operator_dir
+          - name: co_pstn_dir
+          - name: co_calls_anonym
+          - name: co_ass_serv
+          - name: co_ass_equ
+          - name: co_ass_cbb
+          - name: co_crd_check
+          - name: co_crd_chk_end
+          - name: co_crd_chk_start
+          - name: co_crd_clicks
+          - name: co_crd_clicks_day
+          - name: co_crd_days
+          - name: co_comment
+          - name: co_duration
+          - name: co_reserved
+          - name: co_expir_date
+          - name: co_activated
+          - name: co_entdate
+          - name: co_moddate
+          - name: co_userlastmod
+          - name: rec_version
+          - name: co_tollrating
+          - name: tmcode
+          - name: tmcode_date
+          - name: co_crd_d_tr1
+          - name: co_crd_d_tr2
+          - name: co_crd_d_tr3
+          - name: co_crd_p_tr1
+          - name: co_crd_p_tr2
+          - name: co_crd_p_tr3
+          - name: ixcode
+          - name: pending_ixcode
+          - name: co_request
+          - name: co_multinumbering
+          - name: eccode_ldc
+          - name: pending_eccode_ldc
+          - name: eccode_lec
+          - name: pending_eccode_lec
+          - name: dealer_id
+          - name: svp_contract
+          - name: not_valid
+          - name: arpcode
+          - name: contr_curr_id
+          - name: convratetype_contract
+          - name: co_addr_on_ibill
+          - name: co_crd_amount
+          - name: co_crd_amount_day
+          - name: product_history_date
+          - name: co_confirm
+          - name: co_timm_modified
+          - name: co_ib_mass_flag
+          - name: trial_end_date
+          - name: co_ext_csuin
+          - name: co_ib_cdr_flag
+          - name: currency
+          - name: sec_contr_curr_id
+          - name: sec_convratetype_contract
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date
+        
       - name: pscore_sgw
         columns:
           - name: record_type

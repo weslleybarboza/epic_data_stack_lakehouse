@@ -1,27 +1,24 @@
 version: 2
 
 sources:
-  - name: tpch
-    catalog: tpch
-    schema: tiny
+  - name: bronze
+    catalog: iceberg
+    schema: bronze
     tables:
-      - name: nation
+      - name: bscs_mputmtab
+        description: rate plans
         columns:
-          - name: nationkey
-            description: 25 nations are populated
+          - name: tmcode
+            description: description of tmcode 
             tests:
               - unique:
                   severity: warn
               - not_null:
                   severity: warn
-          - name: name
-          - name: regionkey
-            description: Foreign Key to REGIONKEY
-            tests:
-              - relationships:
-                  to: source('tpch', 'region')
-                  field: regionkey
-          - name: comment
+          - name: vscode
+          - name: csdate
+            description: description of csdate
+          - name: status
 
       - name: region
         columns:

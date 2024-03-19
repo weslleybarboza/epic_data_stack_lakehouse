@@ -31,7 +31,7 @@ select
     ,'Y' as registered_flg
     ,'' as registered_date
     ,cust.csactivated as date_from
-    ,serv.cs_deactiv_date as c_date_to
+    ,serv.cs_deactiv_date as date_to
     ,current_date as rec_creation
 	,current_date as rec_update
    from cust as cust

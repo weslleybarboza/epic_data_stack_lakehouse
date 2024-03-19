@@ -1,0 +1,1 @@
+spark-submit --deploy-mode client  /opt/notebook/bronze/bscs_ccontact_all.py

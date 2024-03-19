@@ -1,0 +1,61 @@
+version: 2
+
+sources:
+  - name: pscore
+    catalog: iceberg
+    schema: bronze
+    tables:
+      - name: pscore_sgw
+        description: 'network element'
+        tags:
+        - source
+        - pscore
+        columns:
+          - name: record_type
+          - name: network_initiated_pdp_context
+          - name: imsi
+          - name: msisdn
+          - name: imei
+          - name: charging_id
+          - name: ggsn_pgw_address
+          - name: sgsn_sgw_address
+          - name: ms_nw_capability
+          - name: pdp_pdn_type
+          - name: served_pdp_address
+          - name: dynamic_address_flag
+          - name: access_point_name_ni
+          - name: record_sequence_number
+          - name: record_sequence_number_meg
+          - name: node_id
+          - name: local_sequence_number
+          - name: charging_characteristics
+          - name: record_opening_time
+          - name: duration
+          - name: rat_type
+          - name: cause_for_record_closing
+          - name: diagnostic
+          - name: volume_uplink
+          - name: volume_downlink
+          - name: total_volume
+          - name: lac_or_tac
+          - name: ci_or_eci
+          - name: rac
+          - name: rnc_unsent_data_volume
+          - name: req_alloc_ret_priority
+          - name: neg_alloc_ret_priority
+          - name: req_traffic_class
+          - name: neg_traffic_class
+          - name: qci
+          - name: req_max_bitrate_uplink
+          - name: req_max_bitrate_downlink
+          - name: req_guar_bitrate_uplink
+          - name: req_guar_bitrate_downlink
+          - name: neg_max_bitrate_uplink
+          - name: neg_max_bitrate_downlink
+          - name: neg_guar_bitrate_uplink
+          - name: neg_guar_bitrate_downlink
+          - name: mccmnc
+          - name: country_name
+          - name: input_filename
+          - name: output_filename
+          - name: event_date        

@@ -1,6 +1,6 @@
 with data_activity as (
     select *
-    from {{ ref('vw_pscore_sgw') }}
+    from {{ ref('stg_pscore_sgw') }}
 )
 select
     da.imsi                      as imsi_part_a

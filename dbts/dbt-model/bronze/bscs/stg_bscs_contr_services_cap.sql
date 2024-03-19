@@ -1,5 +1,5 @@
 with source as (
-      select * from {{ source('bronze', 'bscs_contr_services_cap') }}
+      select * from {{ source('bscs', 'bscs_contr_services_cap') }}
 ),
 renamed as (
     select

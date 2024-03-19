@@ -28,14 +28,13 @@ vars:
 models:
   lakehouse:
     +on_table_exists: drop
-    staging:
+    bronze:
       +schema: bronze
       +materialized: view
     silver:
       +schema: silver
-      +materialized: table
-      +file_format: 'orc'      
-    mart:
+      +materialized: table 
+    gold:
       +schema: gold
       +materialized: table
 

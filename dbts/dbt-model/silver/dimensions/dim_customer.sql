@@ -8,9 +8,9 @@ with cust as (
         cua.csactivated,
         cca.ccfname,
         cca.cclname
-    from {{ ref('vw_bscs_customer_all') }} as cua
-    left join {{ ref('vw_bscs_contract_all') }} as coa on cua.customer_id = coa.customer_id
-    left join {{ ref('vw_bscs_ccontact_all') }} as cca on cua.customer_id = cca.customer_id
+    from {{ ref('stg_bscs_customer_all') }} as cua
+    left join {{ ref('stg_bscs_contract_all') }} as coa on cua.customer_id = coa.customer_id
+    left join {{ ref('stg_bscs_ccontact_all') }} as cca on cua.customer_id = cca.customer_id
     where 1=1
     and cca.ccseq = '1'
 )
@@ -20,7 +20,7 @@ with cust as (
         cs_activ_date,
         cs_deactiv_date , 
         rank() over (partition by co_id order by cs_deactiv_date desc) as rank
-    from {{ ref('vw_bscs_contr_services_cap') }}
+    from {{ ref('stg_bscs_contr_services_cap') }}
 )
 select
     cust.customer_id as natural_key

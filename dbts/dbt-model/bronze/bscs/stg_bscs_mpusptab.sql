@@ -1,12 +1,12 @@
 with source as (
-      select * from {{ source('bronze', 'bscs_mpusntab') }}
+      select * from {{ source('bscs', 'bscs_mpusptab') }}
 ),
 renamed as (
     select
-        {{ adapter.quote("sncode") }},
+        {{ adapter.quote("spcode") }},
         {{ adapter.quote("des") }},
         {{ adapter.quote("shdes") }},
-        {{ adapter.quote("snind") }},
+        {{ adapter.quote("sptype") }},
         {{ adapter.quote("rec_version") }},
         {{ adapter.quote("dwh_etl_history_fk") }},
         {{ adapter.quote("flg_processed") }},

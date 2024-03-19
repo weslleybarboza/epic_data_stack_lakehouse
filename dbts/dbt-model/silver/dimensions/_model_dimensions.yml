@@ -4,7 +4,7 @@ models:
   - name: dim_customer
     description: dimension type scd1 with customer information.
     tags:
-      - bscs
+      - dimention
       - silver
     columns:
       - name: natural_key
@@ -15,4 +15,10 @@ models:
         description: key that the business knows
         tests:
           - not_null
-      
+      - name: status
+        tests:
+          - accepted_values:
+              values:
+                - Active
+                - Inactive
+

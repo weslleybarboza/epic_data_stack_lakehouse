@@ -23,6 +23,7 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    AIRFLOW__CORE__TEST_CONNECTION: 'enabled'
     AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS: 'false'
     AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: Europe/Malta
     AIRFLOW__CORE__DEFAULT_TIMEZONE: Europe/Malta
@@ -39,6 +40,7 @@ x-airflow-common:
     - ./docker/airflow/config:/opt/airflow/config
     - ./docker/airflow/plugins:/opt/airflow/plugins
     - ./docker/volume/airflow/logs:/opt/airflow/logs
+    - ./datasources:/opt/airflow/sources  # Mount datasources directory to airflow containers
   user: "50000"
   depends_on:
     &airflow-common-depends-on
@@ -315,6 +317,7 @@ services:
     profiles: [ "nifi" ]
     image: apache/nifi:latest
     container_name: nifi
+    hostname: nifi
     ports:
       - '8443:8443'
     volumes:

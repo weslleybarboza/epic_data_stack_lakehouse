@@ -12,6 +12,8 @@ sources:
           - source
         columns:
           - name: customer_id
+            tests:
+            - not_null
           - name: ccseq
           - name: cctitle
           - name: ccname

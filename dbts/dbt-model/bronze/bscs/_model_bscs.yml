@@ -10,6 +10,7 @@ models:
       - name: customer_id
         tests:
           - not_null
+          - unique
 
   - name: stg_bscs_customer_all
     description: raw data for customer_all

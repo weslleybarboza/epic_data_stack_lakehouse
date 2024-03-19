@@ -16,6 +16,7 @@ models:
         tests:
           - not_null
       - name: status
+        description: '{{ doc("dim_customer_status") }}'
         tests:
           - accepted_values:
               values:

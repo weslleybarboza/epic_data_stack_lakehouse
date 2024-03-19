@@ -50,7 +50,9 @@ renamed as (
         {{ adapter.quote("country_name") }},
         {{ adapter.quote("input_filename") }},
         {{ adapter.quote("output_filename") }},
-        {{ adapter.quote("event_date") }}
+        {{ adapter.quote("event_date") }},
+        {{ adapter.quote("rec_created") }},
+        {{ adapter.quote("rec_updated") }}
 
     from source
 )

@@ -1,5 +1,8 @@
 version: 2
 
+
+#dbt source freshness
+
 sources:
   - name: pscore
     catalog: iceberg
@@ -10,6 +13,10 @@ sources:
         tags:
         - source
         - pscore
+        loaded_at_field: rec_created
+        freshness:
+          warn_after: {count: 1, period: hour}
+          error_after: {count: 2, period: hour}
         columns:
           - name: record_type
           - name: network_initiated_pdp_context
@@ -58,4 +65,6 @@ sources:
           - name: country_name
           - name: input_filename
           - name: output_filename
-          - name: event_date        
+          - name: event_date
+          - name: rec_created
+          - name: rec_updated   

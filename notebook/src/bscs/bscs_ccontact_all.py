@@ -3,6 +3,10 @@ import pyspark
 import boto3
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, IntegerType, DateType, DecimalType
+from pyspark.sql.functions import current_timestamp
+
+REC_CREATED_COLUMN_NAME = "rec_created"
+REC_UPDATED_COLUMN_NAME = "rec_updated"
 
 # ip and environments
 environment = 'prd'
@@ -44,10 +48,29 @@ print("=================================================")
 spark.sparkContext.setLogLevel(log_level)
 print(pyspark.SparkConf().getAll())
 
+# ### functions
+
+def audit_add_column(df):
+    """
+    Add audit columns with current date to the DataFrame.
+    
+    Args:
+        df (DataFrame): The DataFrame to which the audit columns are added.
+    
+    Returns:
+        DataFrame: DataFrame with the audit columns added.
+    """
+    created_column_name = REC_CREATED_COLUMN_NAME
+    updated_column_name = REC_UPDATED_COLUMN_NAME
+    # Add audit column with current date
+    df_with_audit = df.withColumn(created_column_name, current_timestamp()) \
+                      .withColumn(updated_column_name, current_timestamp())
+    
+    return df_with_audit
+
 
 # ### Read from the source
 s3 = boto3.client('s3', endpoint_url=s3_endpoint, aws_access_key_id=s3_access_key, aws_secret_access_key=s3_secret_key)
-
 
 # List all files in the source directory
 file_list = []
@@ -151,31 +174,17 @@ for file_name in file_list:
                     .option("delimiter", ",") \
                     .schema(df_source_schema) \
                     .load(f"s3a://{environment}-{source_bucket}/{file_name}")
-    
-    df.show(5)
-    
+
     if len(df.columns) == num_columns_contract:
         df_source_data = df_source_data.union(df)
 
+
 ### Small transformation
-
-
-# # some transformations
-#     df = df.withColumn("duration", df["duration"].cast("double"))
-#     # df = df.withColumn("event_date", to_date(df["record_opening_time"], "yyyyMMddHHmmss"))
-#     # to_date(df["record_opening_time"], "yyyyMMddHHmmss")
-
-#     df.withColumn("event_date", from_unixtime(unix_timestamp("record_opening_time", "yyyyMMddHHmmss")))
-
-#     df.select('event_date').show()
-
-
-
+df_send_to_bronze = audit_add_column(df_source_data)
 
 # ### DDL on lakehouse
-
-
 # #### Data base
+
 ##creating db
 sql_db_create = f"""
 CREATE DATABASE IF NOT EXISTS {dest_final_db} COMMENT '' LOCATION 's3a://{environment}-{lakehouse_bucket}/{dest_db_catalog}/{dest_db_schema}/'
@@ -185,13 +194,9 @@ spark.sql(sql_db_create)
 
 
 # #### Dest table
-
-
 sql_ddl_drop_table = f"""
     DROP TABLE IF EXISTS  {dest_final_table}
 """
-
-
 sql_ddl_create_table = f"""
         create table if not exists {dest_final_table}
         (
@@ -264,31 +269,26 @@ sql_ddl_create_table = f"""
 			flg_processed string,
 			flg_error string,
 			error_desc string,
-			stg_record_load_date string
+			stg_record_load_date string,
+            rec_created timestamp,
+            rec_updated timestamp
         ) 
         using iceberg
         """        
 
 
 # #### SQL DDL Execution
-
-
 ## drop table
 spark.sql(sql_ddl_drop_table)
 
 ## create table
 spark.sql(sql_ddl_create_table)
 
-
 # ### Write table
-
-
 # wrintint the data on lakehouse
-df_source_data.writeTo(f'{dest_final_table}').append()
+df_send_to_bronze.writeTo(f'{dest_final_table}').append()
 
 
 system_table = spark.table(f'{dest_final_table}')
 print(system_table.printSchema())
 print(f"No of Records: {system_table.count()}")
-
-

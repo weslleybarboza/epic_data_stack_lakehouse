@@ -41,6 +41,8 @@ x-airflow-common:
     - ./docker/airflow/plugins:/opt/airflow/plugins
     - ./docker/volume/airflow/logs:/opt/airflow/logs
     - ./datasources:/opt/airflow/sources  # Mount datasources directory to airflow containers
+    - ./notebook:/opt/airflow/notebook # Mount notebook directory to airflow containers
+    - ./docker/spark/spark-defaults-iceberg.conf:/opt/airflow/spark/conf/spark-defaults.conf # Default configs for spark
   user: "50000"
   depends_on:
     &airflow-common-depends-on
@@ -284,7 +286,7 @@ services:
       - |
         mkdir -p /sources/logs /sources/dags /sources/plugins
         chown -R "50000:0" /sources/{logs,dags,plugins}
-        exec /entrypoint airflow version
+        exec /entrypoint airflow version 
     # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env

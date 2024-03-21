@@ -2,3 +2,4 @@ dbt-core
 dbt-trino 
 trino 
 airflow-dbt
+apache-airflow-providers-apache-spark

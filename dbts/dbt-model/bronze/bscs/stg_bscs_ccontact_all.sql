@@ -1,5 +1,5 @@
 with source as (
-      select * from {{ source('bscs','bscs_ccontact_all') }}
+      select * from {{ source('bscs', 'bscs_ccontact_all') }}
 ),
 renamed as (
     select
@@ -72,7 +72,9 @@ renamed as (
         {{ adapter.quote("flg_processed") }},
         {{ adapter.quote("flg_error") }},
         {{ adapter.quote("error_desc") }},
-        {{ adapter.quote("stg_record_load_date") }}
+        {{ adapter.quote("stg_record_load_date") }},
+        {{ adapter.quote("rec_created") }},
+        {{ adapter.quote("rec_updated") }}
 
     from source
 )

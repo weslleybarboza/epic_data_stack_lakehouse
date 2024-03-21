@@ -28,14 +28,14 @@ vars:
 models:
   lakehouse:
     +on_table_exists: drop
-    staging:
-      +schema: staging
+    bronze:
+      +schema: bronze
       +materialized: view
     silver:
       +schema: silver
-      +materialized: table      
-    mart:
-      +schema: mart
+      +materialized: table 
+    gold:
+      +schema: gold
       +materialized: table
 
 # Configure dispatches

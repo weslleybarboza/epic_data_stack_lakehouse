@@ -1,0 +1,428 @@
+version: 2
+
+sources:
+  - name: bscs
+    catalog: iceberg
+    schema: bronze
+    tables:
+      - name: bscs_ccontact_all
+        description: information detailed of the customers
+        tags:
+          - bscs
+          - source
+        columns:
+          - name: customer_id
+            description: primary key
+            tests:
+            - not_null
+          - name: ccseq
+          - name: cctitle
+          - name: ccname
+          - name: ccfname
+          - name: cclname
+          - name: ccstreet
+          - name: ccstreetno
+          - name: cclnamemc
+          - name: ccaddr1
+          - name: ccaddr2
+          - name: ccaddr3
+          - name: cccity
+          - name: cczip
+          - name: cccountry
+          - name: cctn
+          - name: cctn2
+          - name: ccfax
+          - name: ccline1
+          - name: ccline2
+          - name: ccline3
+          - name: ccline4
+          - name: ccline5
+          - name: ccline6
+          - name: cctn_area
+          - name: cctn2_area
+          - name: ccfax_area
+          - name: ccjobdesc
+          - name: ccdeftrk
+          - name: ccuser
+          - name: ccbill
+          - name: ccbilldetails
+          - name: cccontract
+          - name: ccship
+          - name: ccmagazine
+          - name: ccdirectory
+          - name: ccforward
+          - name: ccurgent
+          - name: country
+          - name: cclanguage
+          - name: ccadditional
+          - name: sort_criteria
+          - name: ccentdate
+          - name: ccmoddate
+          - name: ccmod
+          - name: rec_version
+          - name: cczip_addition
+          - name: cccounty
+          - name: ccstate
+          - name: ccgeocode
+          - name: ccvaliddate
+          - name: ccbill_previous
+          - name: welcome_crit
+          - name: ccmname
+          - name: ccemail
+          - name: ccaddryears
+          - name: ccsmsno
+          - name: ccinccode
+          - name: userlastmod
+          - name: ccbilltemp
+          - name: ccvalidation
+          - name: ccuser_inst
+          - name: cclocation_1
+          - name: cclocation_2
+          - name: ccremark
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date
+
+      - name: bscs_customer_all
+        description: information of the subscription
+        tags:
+          - bscs
+          - source        
+        columns:
+          - name: customer_id
+          - name: customer_id_high
+          - name: custcode
+          - name: csst
+          - name: cstype
+          - name: csactivated
+          - name: csdeactivated
+          - name: customer_dealer
+          - name: cstype_date
+          - name: cstaxable
+          - name: cslevel
+          - name: cscusttype
+          - name: cslvlname
+          - name: cpcode
+          - name: tmcode
+          - name: prgcode
+          - name: termcode
+          - name: csclimit
+          - name: cscurbalance
+          - name: csdepdate
+          - name: billcycle
+          - name: nobillprint
+          - name: nobillstart
+          - name: nobillstop
+          - name: cstestbillrun
+          - name: bill_layout
+          - name: paymntresp
+          - name: summsheet
+          - name: csmethpaymnt
+          - name: payresp_groups
+          - name: target_reached
+          - name: pcsmethpaymnt
+          - name: passportno
+          - name: birthdate
+          - name: marketing_flag
+          - name: dunning_flag
+          - name: comm_no
+          - name: pos_comm_type
+          - name: btx_password
+          - name: btx_user
+          - name: settles_p_month
+          - name: cashretour
+          - name: cstradecode
+          - name: cspassword
+          - name: csaddryears
+          - name: cspromotion
+          - name: cscompregno
+          - name: cscomptaxno
+          - name: csreason
+          - name: cscollector
+          - name: cscontresp
+          - name: csdeposit
+          - name: suspended
+          - name: reactivated
+          - name: bundling
+          - name: prev_balance
+          - name: lbc_date
+          - name: employee
+          - name: company_type
+          - name: crlimit_exc
+          - name: area_id
+          - name: costcenter_id
+          - name: csfedtaxid
+          - name: credit_rating
+          - name: cscredit_status
+          - name: deact_create_date
+          - name: deact_receip_date
+          - name: cscrdinreasn
+          - name: cscrdindate
+          - name: cscrdinclaim
+          - name: cscrdinlimit
+          - name: cscrdinstatus
+          - name: cscrdinlast_act
+          - name: edifact_addr
+          - name: edifact_user_flag
+          - name: edifact_flag
+          - name: csdeposit_due_date
+          - name: calculate_deposit
+          - name: tmcode_date
+          - name: cslanguage
+          - name: csrentalbc
+          - name: id_type
+          - name: user_lastmod
+          - name: csentdate
+          - name: csmoddate
+          - name: csmod
+          - name: csnationality
+          - name: csbillmedium
+          - name: csitembillmedium
+          - name: rec_version
+          - name: dunn_date_1
+          - name: dunn_date_2
+          - name: dunn_date_3
+          - name: dunn_date_4
+          - name: dunn_date_5
+          - name: dunn_date_6
+          - name: cscredit_date
+          - name: cscredit_remark
+          - name: customer_id_ext
+          - name: cslimit_o_tr1
+          - name: cslimit_o_tr2
+          - name: cslimit_o_tr3
+          - name: lbc_date_hist
+          - name: cscredit_score
+          - name: cstraderef
+          - name: cssocialsecno
+          - name: csdrivelicence
+          - name: cssex
+          - name: csemployer
+          - name: cstaxable_reason
+          - name: dmcode_subs
+          - name: dmcode_access
+          - name: dmcode_usage
+          - name: csreseller
+          - name: csclimit_o_tr1
+          - name: csclimit_o_tr2
+          - name: csclimit_o_tr3
+          - name: wpid
+          - name: csprepayment
+          - name: cssumaddr
+          - name: dmcode_contract
+          - name: csremark_1
+          - name: csremark_2
+          - name: ma_id
+          - name: dunning_status
+          - name: dunn_date_7
+          - name: dunn_date_8
+          - name: dunn_date_9
+          - name: dunn_date_10
+          - name: bill_information
+          - name: dealer_id
+          - name: not_valid
+          - name: dunning_mode
+          - name: cscrdcheck_agreed
+          - name: marital_status
+          - name: expect_pay_curr_id
+          - name: convratetype_payment
+          - name: refund_curr_id
+          - name: convratetype_refund
+          - name: srcode
+          - name: currency
+          - name: primary_doc_currency
+          - name: secondary_doc_currency
+          - name: prim_convratetype_doc
+          - name: sec_convratetype_doc
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date
+      
+      - name: bscs_mpusntab
+        description: configured services
+        tags:
+          - bscs
+          - source        
+        columns:
+          - name: sncode
+          - name: des
+          - name: shdes
+          - name: snind
+          - name: rec_version
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date
+      
+      - name: bscs_mpusptab
+        description: service packages
+        tags:
+          - bscs
+          - source        
+        columns:
+          - name: spcode
+          - name: des
+          - name: shdes
+          - name: sptype
+          - name: rec_version
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date
+
+      - name: bscs_mputmtab
+        description: rate plans
+        tags:
+          - bscs
+          - source        
+        columns:
+          - name: tmcode
+          - name: vscode
+          - name: vsdate
+          - name: status
+          - name: tmind
+          - name: des
+          - name: shdes
+          - name: plcode
+          - name: plmnname
+          - name: tmrc
+          - name: rec_version
+          - name: apdate
+          - name: tmglobal
+          - name: currency
+          - name: global_iot_ind
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date
+  
+      - name: bscs_contr_services_cap
+        description: contracted services capability
+        tags:
+          - bscs
+          - source        
+        columns:
+          - name: co_id
+          - name: sncode
+          - name: seqno
+          - name: seqno_pre
+          - name: bccode
+          - name: pending_bccode
+          - name: dn_id
+          - name: main_dirnum
+          - name: cs_status
+          - name: cs_activ_date
+          - name: cs_deactiv_date
+          - name: cs_request
+          - name: rec_version
+          - name: dn_block_id
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date        
+
+      - name: bscs_contract_all
+        description: information of the contract
+        tags:
+          - bscs
+          - source        
+        columns:
+          - name: co_id
+          - name: customer_id
+          - name: type
+          - name: ohxact
+          - name: hrcode
+          - name: plcode
+          - name: sccode
+          - name: subm_id
+          - name: co_signed
+          - name: co_cancelled
+          - name: co_suspended
+          - name: co_reactivated
+          - name: co_status
+          - name: co_status_date
+          - name: co_requstatus
+          - name: co_requstatus_date
+          - name: co_rs_id
+          - name: co_equ_type
+          - name: co_rep_bill
+          - name: co_rep
+          - name: co_rep_bill_idno
+          - name: co_rep_idno
+          - name: co_installed
+          - name: co_itemized_bill
+          - name: co_ib_categories
+          - name: co_ib_threshold
+          - name: co_archive
+          - name: co_dir_entry
+          - name: co_operator_dir
+          - name: co_pstn_dir
+          - name: co_calls_anonym
+          - name: co_ass_serv
+          - name: co_ass_equ
+          - name: co_ass_cbb
+          - name: co_crd_check
+          - name: co_crd_chk_end
+          - name: co_crd_chk_start
+          - name: co_crd_clicks
+          - name: co_crd_clicks_day
+          - name: co_crd_days
+          - name: co_comment
+          - name: co_duration
+          - name: co_reserved
+          - name: co_expir_date
+          - name: co_activated
+          - name: co_entdate
+          - name: co_moddate
+          - name: co_userlastmod
+          - name: rec_version
+          - name: co_tollrating
+          - name: tmcode
+          - name: tmcode_date
+          - name: co_crd_d_tr1
+          - name: co_crd_d_tr2
+          - name: co_crd_d_tr3
+          - name: co_crd_p_tr1
+          - name: co_crd_p_tr2
+          - name: co_crd_p_tr3
+          - name: ixcode
+          - name: pending_ixcode
+          - name: co_request
+          - name: co_multinumbering
+          - name: eccode_ldc
+          - name: pending_eccode_ldc
+          - name: eccode_lec
+          - name: pending_eccode_lec
+          - name: dealer_id
+          - name: svp_contract
+          - name: not_valid
+          - name: arpcode
+          - name: contr_curr_id
+          - name: convratetype_contract
+          - name: co_addr_on_ibill
+          - name: co_crd_amount
+          - name: co_crd_amount_day
+          - name: product_history_date
+          - name: co_confirm
+          - name: co_timm_modified
+          - name: co_ib_mass_flag
+          - name: trial_end_date
+          - name: co_ext_csuin
+          - name: co_ib_cdr_flag
+          - name: currency
+          - name: sec_contr_curr_id
+          - name: sec_convratetype_contract
+          - name: dwh_etl_history_fk
+          - name: flg_processed
+          - name: flg_error
+          - name: error_desc
+          - name: stg_record_load_date
+     

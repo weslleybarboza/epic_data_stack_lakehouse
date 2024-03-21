@@ -10,7 +10,7 @@ trino:
       host: localhost
       port: 8889
       catalog: iceberg
-      schema: default
+      schema: bronze
       threads: 1
       http_scheme: http
       session_properties:
@@ -25,7 +25,7 @@ trino:
       host: trino
       port: 8889
       catalog: iceberg
-      schema: default
+      schema: bronze
       threads: 1
       http_scheme: http
       session_properties:

@@ -2,4 +2,9 @@ dbt-core
 dbt-trino 
 trino 
 airflow-dbt
+apache-airflow
+docker
+python-dotenv
+apache-airflow-providers-docker
+astronomer-cosmos
 apache-airflow-providers-apache-spark

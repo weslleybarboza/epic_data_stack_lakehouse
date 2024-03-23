@@ -1,6 +1,10 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'charging_id'
+    unique_key = 'charging_id',
+    properties= {
+        "format": "'PARQUET'",
+        "partitioning": "ARRAY['rec_created']",
+        }
 ) }}
 
 with data_activity as (

@@ -151,28 +151,6 @@ print("Number of columns of contract:", num_columns_contract)
 
 df_source_data = spark.createDataFrame([], schema=df_source_schema)
 
-
-# reading files in the source
-for file_name in file_list:
-
-    print(f'File in processing: {file_name}')
-    
-    df = spark.read.format("csv") \
-                    .option("header", "true") \
-                    .option("delimiter", ";") \
-                    .schema(df_source_schema) \
-                    .load(f"s3a://{environment}-{source_bucket}/{file_name}")
-    
-
-    
-    if len(df.columns) == num_columns_contract:
-        print('No of columns matched')
-        df_source_data = df_source_data.union(df)
-
-
-### Small transformation
-df_send_to_bronze = audit_add_column(df_source_data)
-
 # ### DDL on lakehouse
 #### Data base
 ##creating db
@@ -249,16 +227,39 @@ sql_ddl_create_table = f"""
         """
 
 
-# #### SQL DDL Execution
-## drop table
-spark.sql(sql_ddl_drop_table)
+# reading files in the source
+for file_name in file_list:
 
-## create table
-spark.sql(sql_ddl_create_table)
+    print(f'File in processing: {file_name}')
+    
+    df = spark.read.format("csv") \
+                    .option("header", "true") \
+                    .option("delimiter", ";") \
+                    .schema(df_source_schema) \
+                    .load(f"s3a://{environment}-{source_bucket}/{file_name}")
+    
 
-# ### Write table
-# wrintint the data on lakehouse
-df_send_to_bronze.writeTo(f'{dest_final_table}').append()
+    
+    if len(df.columns) == num_columns_contract:
+        print('No of columns matched')
+        df_source_data = df_source_data.union(df)
+
+
+    ### Small transformation
+    df_send_to_bronze = audit_add_column(df_source_data)
+
+
+
+    # #### SQL DDL Execution
+    ## drop table
+    # spark.sql(sql_ddl_drop_table)
+
+    ## create table
+    spark.sql(sql_ddl_create_table)
+
+    # ### Write table
+    # wrintint the data on lakehouse
+    df_send_to_bronze.writeTo(f'{dest_final_table}').append()
 
 
 table = spark.table(f'{dest_final_table}')

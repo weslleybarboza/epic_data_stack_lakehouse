@@ -1,29 +1,42 @@
 # %%
-#partition by datetime
+# ### Libraries and session
 
 # %%
+import pyspark
 import boto3
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType, IntegerType, DateType, DecimalType
+from pyspark.sql.functions import year, to_date, month, dayofmonth,  from_unixtime, unix_timestamp
+from pyspark.sql.functions import current_timestamp
+
+# %%
+REC_CREATED_COLUMN_NAME = "rec_created"
+REC_UPDATED_COLUMN_NAME = "rec_updated"
 
 # %%
 # ip and environments
 environment = 'prd'
 
+# Source
+system_source = "pscore"
+system_table ="pscore_sgw"
+
 # Set the bucket and folder paths
 source_bucket = 'landing-zone'
-source_folder = 'files/pscore/ascll'
+source_folder = f'files/{system_source}/ascll'
 
-lakehouse_bucket = 'lakehouse' 
-lakehouse_folder = 'bronze'
+lakehouse_bucket = 'lakehouse'
+lakehouse_folder = 'iceberg'
 
 # table destination settings
 dest_db_catalog = 'iceberg'
-dest_db_schema = 'pscore'
-dest_db_table = 'sgw'
+dest_db_schema = 'bronze'
+dest_db_table = system_table
 dest_final_db = f'{dest_db_catalog}.{dest_db_schema}'
 dest_final_table = f'{dest_final_db}.{dest_db_table}'
 
 # Spark identification and settings
-appname = 'SGW_from_landing_to_bronze'
+appname = f'BRONZE_{dest_final_db}.{dest_final_table}'
 log_level = 'WARN' # Valid log levels include: ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
 
 # Set your MinIO credentials
@@ -32,84 +45,154 @@ s3_access_key = 'minio'
 s3_secret_key = 'minio123'
 
 # %%
-import pyspark
-# import boto3
-from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, TimestampType
-from pyspark.sql.functions import year, to_date, month, dayofmonth,  from_unixtime, unix_timestamp
-
-
-# %%
 spark = SparkSession.builder\
     .appName(appname)\
     .getOrCreate()
 
 # %%
+print("=================================================")
 spark.sparkContext.setLogLevel(log_level)
 print(pyspark.SparkConf().getAll())
 
-print(spark.sparkContext.getConf().get("spark.sql.catalog.iceberg.warehouse"))
+# %%
+def audit_add_column(df):
+    """
+    Add audit columns with current date to the DataFrame.
+    
+    Args:
+        df (DataFrame): The DataFrame to which the audit columns are added.
+    
+    Returns:
+        DataFrame: DataFrame with the audit columns added.
+    """
+    created_column_name = REC_CREATED_COLUMN_NAME
+    updated_column_name = REC_UPDATED_COLUMN_NAME
+    # Add audit column with current date
+    df_with_audit = df.withColumn(created_column_name, current_timestamp()) \
+                      .withColumn(updated_column_name, current_timestamp())
+    
+    return df_with_audit
 
 # %%
-schema = StructType([
-                    StructField("record_type", StringType()),
-                    StructField("network_initiated_pdp_context", StringType()),
-                    StructField("imsi", StringType()),
-                    StructField("msisdn", StringType()),
-                    StructField("imei", StringType()),
-                    StructField("charging_id", StringType()),
-                    StructField("ggsn_pgw_address", StringType()),
-                    StructField("sgsn_sgw_address", StringType()),
-                    StructField("ms_nw_capability", StringType()),
-                    StructField("pdp_pdn_type", StringType()),
-                    StructField("served_pdp_address", StringType()),
-                    StructField("dynamic_address_flag", StringType()),
-                    StructField("access_point_name_ni", StringType()),
-                    StructField("record_sequence_number", StringType()),
-                    StructField("record_sequence_number_meg", StringType()),
-                    StructField("node_id", StringType()),
-                    StructField("local_sequence_number", StringType()),
-                    StructField("charging_characteristics", StringType()),
-                    StructField("record_opening_time", StringType()),
-                    StructField("duration", StringType()),
-                    StructField("rat_type", StringType()),
-                    StructField("cause_for_record_closing", StringType()),
-                    StructField("diagnostic", StringType()),
-                    StructField("volume_uplink", StringType()),
-                    StructField("volume_downlink", StringType()),
-                    StructField("total_volume", StringType()),
-                    StructField("lac_or_tac", StringType()),
-                    StructField("ci_or_eci", StringType()),
-                    StructField("rac", StringType()),
-                    StructField("rnc_unsent_data_volume", StringType()),
-                    StructField("req_alloc_ret_priority", StringType()),
-                    StructField("neg_alloc_ret_priority", StringType()),
-                    StructField("req_traffic_class", StringType()),
-                    StructField("neg_traffic_class", StringType()),
-                    StructField("qci", StringType()),
-                    StructField("req_max_bitrate_uplink", StringType()),
-                    StructField("req_max_bitrate_downlink", StringType()),
-                    StructField("req_guar_bitrate_uplink", StringType()),
-                    StructField("req_guar_bitrate_downlink", StringType()),
-                    StructField("neg_max_bitrate_uplink", StringType()),
-                    StructField("neg_max_bitrate_downlink", StringType()),
-                    StructField("neg_guar_bitrate_uplink", StringType()),
-                    StructField("neg_guar_bitrate_downlink", StringType()),
-                    StructField("mccmnc", StringType()),
-                    StructField("country_name", StringType()),
-                    StructField("input_filename", StringType()),
-                    StructField("output_filename", StringType()),
-                    StructField("event_date", TimestampType())
+s3 = boto3.client('s3', endpoint_url=s3_endpoint, aws_access_key_id=s3_access_key, aws_secret_access_key=s3_secret_key)
+
+# List all files in the source directory
+file_list = []
+paginator = s3.get_paginator('list_objects_v2')
+
+
+for result in paginator.paginate(Bucket=f"{environment}-{source_bucket}", Prefix=source_folder):
+    
+    if 'Contents' in result:
+        for item in result['Contents']:
+            file_list.append(item['Key'])
+
+print(file_list)
+
+# %%
+df_source_schema = StructType([
+                        StructField("record_type", StringType()),
+                        StructField("network_initiated_pdp_context", StringType()),
+                        StructField("imsi", StringType()),
+                        StructField("msisdn", StringType()),
+                        StructField("imei", StringType()),
+                        StructField("charging_id", StringType()),
+                        StructField("ggsn_pgw_address", StringType()),
+                        StructField("sgsn_sgw_address", StringType()),
+                        StructField("ms_nw_capability", StringType()),
+                        StructField("pdp_pdn_type", StringType()),
+                        StructField("served_pdp_address", StringType()),
+                        StructField("dynamic_address_flag", StringType()),
+                        StructField("access_point_name_ni", StringType()),
+                        StructField("record_sequence_number", StringType()),
+                        StructField("record_sequence_number_meg", StringType()),
+                        StructField("node_id", StringType()),
+                        StructField("local_sequence_number", StringType()),
+                        StructField("charging_characteristics", StringType()),
+                        StructField("record_opening_time", StringType()),
+                        StructField("duration", StringType()),
+                        StructField("rat_type", StringType()),
+                        StructField("cause_for_record_closing", StringType()),
+                        StructField("diagnostic", StringType()),
+                        StructField("volume_uplink", StringType()),
+                        StructField("volume_downlink", StringType()),
+                        StructField("total_volume", StringType()),
+                        StructField("lac_or_tac", StringType()),
+                        StructField("ci_or_eci", StringType()),
+                        StructField("rac", StringType()),
+                        StructField("rnc_unsent_data_volume", StringType()),
+                        StructField("req_alloc_ret_priority", StringType()),
+                        StructField("neg_alloc_ret_priority", StringType()),
+                        StructField("req_traffic_class", StringType()),
+                        StructField("neg_traffic_class", StringType()),
+                        StructField("qci", StringType()),
+                        StructField("req_max_bitrate_uplink", StringType()),
+                        StructField("req_max_bitrate_downlink", StringType()),
+                        StructField("req_guar_bitrate_uplink", StringType()),
+                        StructField("req_guar_bitrate_downlink", StringType()),
+                        StructField("neg_max_bitrate_uplink", StringType()),
+                        StructField("neg_max_bitrate_downlink", StringType()),
+                        StructField("neg_guar_bitrate_uplink", StringType()),
+                        StructField("neg_guar_bitrate_downlink", StringType()),
+                        StructField("mccmnc", StringType()),
+                        StructField("country_name", StringType()),
+                        StructField("input_filename", StringType()),
+                        StructField("output_filename", StringType()),
+                        StructField("event_date", TimestampType())                    
                 ])
 
 # %%
-spark.sql(f"""
-CREATE DATABASE IF NOT EXISTS iceberg.raw COMMENT '' LOCATION 's3a://datalake/iceberg/raw/'
-""")
+num_columns_contract = len(df_source_schema.fields)
+print("Number of columns of contract:", num_columns_contract)
+
+
+df_source_data = spark.createDataFrame([], schema=df_source_schema)
 
 # %%
-table = spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS iceberg.raw.{dest_db_table}
+# reading files in the source
+for file_name in file_list:
+
+    print(f'File in processing: {file_name}')
+    
+    df = spark.read.format("csv") \
+                    .option("header", "false") \
+                    .option("delimiter", ";") \
+                    .schema(df_source_schema) \
+                    .load(f"s3://{environment}-{source_bucket}/{file_name}")
+
+    if len(df.columns) == num_columns_contract:
+        print('No of columns matched')
+        df_source_data = df_source_data.union(df)
+
+df_send_to_bronze = audit_add_column(df_source_data)
+
+# %%
+sql_db_create = f"""
+CREATE DATABASE IF NOT EXISTS {dest_final_db} COMMENT '' LOCATION 's3://{environment}-{lakehouse_bucket}/{dest_db_catalog}/{dest_db_schema}/'
+"""
+print(sql_db_create)
+spark.sql(sql_db_create)
+
+# %%
+sql_ddl_drop_table = f"""
+    DROP TABLE IF EXISTS {dest_final_table}
+"""
+
+# %%
+show_databases_df = spark.sql("SHOW CATALOGS")
+show_databases_df.show()
+
+# %%
+show_databases_df = spark.sql("SHOW DATABASES")
+show_databases_df.show()
+
+# %%
+show_tables_df = spark.sql("SHOW TABLES in bronze")
+show_tables_df.show()
+
+# %%
+sql_ddl_create_table = f"""
+        create table if not exists {dest_final_table}
         (
             record_type STRING,
             network_initiated_pdp_context STRING,
@@ -158,56 +241,61 @@ table = spark.sql(f"""
             country_name STRING,
             input_filename STRING,
             output_filename STRING,
-            event_date Timestamp
+            event_date Timestamp,
+            rec_created timestamp,
+            rec_updated timestamp
         ) 
-        USING iceberg
-        PARTITIONED BY (event_date)
-        """)
+        using iceberg
+        """
 
 # %%
-s3 = boto3.client('s3', endpoint_url=s3_endpoint, aws_access_key_id=s3_access_key, aws_secret_access_key=s3_secret_key)
+import boto3
+
+# Specify MinIO credentials
+minio_access_key = 'minio'
+minio_secret_key = 'minio123'
+minio_endpoint = 'http://minio:9000'  # e.g., http://minio.example.com:9000
+
+# Initialize the MinIO client
+minio_client = boto3.client('s3',
+                            endpoint_url=minio_endpoint,
+                            aws_access_key_id=minio_access_key,
+                            aws_secret_access_key=minio_secret_key,
+                            region_name='us-east-1',  # Specify a region (does not matter for MinIO)
+                            verify=False)  # Set to False if you're using self-signed SSL certificates
+
+# List buckets
+response = minio_client.list_buckets()
+
+# Print bucket names
+print("Buckets:")
+for bucket in response['Buckets']:
+    print(bucket['Name'])
 
 # %%
-# List all files in the source directory
-file_list = []
-paginator = s3.get_paginator('list_objects_v2')
-
-for result in paginator.paginate(Bucket=f"{environment}-{source_bucket}", Prefix=source_folder):
-    
-    if 'Contents' in result:
-        for item in result['Contents']:
-            file_list.append(item['Key'])
-
+# #### SQL DDL Execution
+## drop table
+spark.sql(sql_ddl_drop_table)
 
 # %%
-# reading files in the source
-for file_name in file_list:
-
-    print(f'File in processing: {file_name}')
-    
-    df = spark.read.format("csv") \
-                    .option("header", "false") \
-                    .option("delimiter", ";") \
-                    .schema(schema) \
-                    .load(f"s3a://{environment}-{source_bucket}/{file_name}")
-    # some transformations
-    df = df.withColumn("duration", df["duration"].cast("double"))
-    # df = df.withColumn("event_date", to_date(df["record_opening_time"], "yyyyMMddHHmmss"))
-    # to_date(df["record_opening_time"], "yyyyMMddHHmmss")
-
-    # df.withColumn("event_date", from_unixtime(unix_timestamp("record_opening_time", "yyyyMMddHHmmss")))
-
-    df.select('imsi').show()
-    
-    # wrinte the data on lakehouse
-    df.writeTo(f'iceberg.raw.{dest_db_table}').append()     
-
+# #### SQL DDL Execution
+## create table
+spark.sql(sql_ddl_create_table)
 
 # %%
-tb = spark.table(f'iceberg.raw.{dest_db_table}')
-tb.printSchema()
+# Simple select
+df_send_to_bronze.select('imsi').show()
+
+# ### Write table
+# wrintint the data on lakehouse
+# wrinte the data on lakehouse
+df_send_to_bronze.writeTo(f'{dest_final_table}').append()
 
 # %%
-print(f"No of Records: {tb.count()}")
+table = spark.table(f'{dest_final_table}')
+print(table.printSchema())
+
+# %%
+print(f"No of Records: {table.count()}")
 
 

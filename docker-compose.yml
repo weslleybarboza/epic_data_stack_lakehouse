@@ -41,7 +41,10 @@ x-airflow-common:
     - ./docker/airflow/plugins:/opt/airflow/plugins
     - ./docker/volume/airflow/logs:/opt/airflow/logs
     - ./datasources:/opt/airflow/sources  # Mount datasources directory to airflow containers
-  user: "50000"
+    - ./notebook:/opt/spark/notebook # Mount notebook directory to airflow containers (for spark script)
+    - ./docker/spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf # Default configs for spark
+    - /var/run/docker.sock:/var/run/docker.sock
+  user: root
   depends_on:
     &airflow-common-depends-on
     redis:
@@ -202,6 +205,7 @@ services:
       - ./docker/jupyter/jupyter_server_config.py:/root/.jupyter/jupyter_server_config.py
       - ./docker/jupyter/themes.jupyterlab-settings:/root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings
       - ./docker/spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf
+      # - ./docker/spark/keys:/root/.ssh
 
   ####################################################################################################
   # Airflow
@@ -285,7 +289,7 @@ services:
       - |
         mkdir -p /sources/logs /sources/dags /sources/plugins
         chown -R "50000:0" /sources/{logs,dags,plugins}
-        exec /entrypoint airflow version
+        exec /entrypoint airflow version 
     # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env

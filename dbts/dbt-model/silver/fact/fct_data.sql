@@ -1,9 +1,11 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'charging_id',
+    incremental_strategy='merge',
+    unique_key = 'natural_key',
     properties= {
         "format": "'PARQUET'",
         "partitioning": "ARRAY['rec_created']",
+        
         }
 ) }}
 
@@ -12,7 +14,7 @@ with data_activity as (
     from {{ ref('stg_pscore_sgw') }}
     
     {% if is_incremental() %}
-    where rec_created >= (select max(rec_created) from {{ this }})
+    where rec_created >= (select date_add('day', -1, max(rec_created)) from {{ this }})
     {% endif %}
 )
 select

@@ -1,0 +1,51 @@
+# Configure projects
+name: 'lakehouse'
+version: '0.0.1'
+config-version: 2
+require-dbt-version: [ ">=1.4.0", "<2.0.0" ]
+
+# Configure profiles
+profile: 'dremio'
+
+# Configure paths
+model-paths: [ "dbt-model" ]
+analysis-paths: [ "dbt-analysis" ]
+test-paths: [ "dbt-test" ]
+seed-paths: [ "dbt-seeds" ]
+macro-paths: [ "dbt-macro" ]
+snapshot-paths: [ "dbt-snapshot" ]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "logs"
+  - "dbt_modules"
+
+# Configure variables
+vars:
+  debug_logs: "{{ env_var('DBT_EDR_DEBUG', True) }}"
+  "dbt_date:time_zone": "Europe/Malta"  
+
+# Configure models
+models:
+  lakehouse:
+    +on_table_exists: drop
+    bronze:
+      +schema: bronze
+      +materialized: table
+    silver:
+      +schema: dremio_silver
+      dimension:
+        +materialized: table
+      fact:
+        +materialized: table
+      ephemeral:
+        +materialized: ephemeral
+    gold:
+      +schema: dremio_gold
+      +materialized: table      
+
+# Configure dispatches
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ['dbt_utils' ]
+

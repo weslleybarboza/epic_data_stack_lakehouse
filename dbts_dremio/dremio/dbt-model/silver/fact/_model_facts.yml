@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: fct_dremio_data
+    description: data activity of customer
+    tags:
+      - fact
+      - silver
+      - pscore
+      - data
+    columns:
+      - name: msisdn_part_a
+        description: msisdn that made the data usage
+        tests:
+          - not_null
+      - name: id_dim_local
+        description: country where the customer was when mande the usage
+        tests:
+          - not_null
+      

@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: stg_dremio_bscs_ccontact_all
+    description: raw data for ccontact_all
+    tags:
+      - bscs
+      - bronze
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_dremio_bscs_customer_all
+    description: raw data for customer_all
+    tags:
+      - bscs
+      - bronze
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+      - name: custcode
+        tests:
+          - not_null

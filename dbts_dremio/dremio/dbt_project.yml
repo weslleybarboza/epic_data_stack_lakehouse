@@ -1,11 +1,16 @@
 # Configure projects
-name: 'lakehouse'
+name: 'dremio'
 version: '0.0.1'
 config-version: 2
 require-dbt-version: [ ">=1.4.0", "<2.0.0" ]
 
 # Configure profiles
 profile: 'dremio'
+
+quoting:
+    database: true
+    schema: true
+    identifier: true
 
 # Configure paths
 model-paths: [ "dbt-model" ]
@@ -30,7 +35,7 @@ models:
   lakehouse:
     +on_table_exists: drop
     bronze:
-      +schema: bronze
+      +schema: dremio_bronze
       +materialized: table
     silver:
       +schema: dremio_silver

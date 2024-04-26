@@ -116,58 +116,6 @@ services:
     depends_on:
       - minio
 
-  hive-metastore:
-    container_name: hive-metastore
-    hostname: hive-metastore
-    build:
-      context: ./docker/hive-metastore/
-      dockerfile: Dockerfile
-    image: 1ambda/lakehouse:hive-metastore-3.1.2
-    profiles: [ "storage" ,"spark", "dbt"]    
-    ports:
-      - '9083:9083' # Metastore Thrift
-    environment:
-      HIVE_METASTORE_DRIVER: org.postgresql.Driver
-      HIVE_METASTORE_JDBC_URL: jdbc:postgresql://postgres:5432/metastore
-      HIVE_METASTORE_USER: hive
-      HIVE_METASTORE_PASSWORD: hive
-      HIVE_METASTORE_WAREHOUSE_DIR: s3://prd-lakehouse/iceberg
-      S3_ENDPOINT: http://minio:9000
-      S3_ACCESS_KEY: minio
-      S3_SECRET_KEY: minio123
-      S3_PATH_STYLE_ACCESS: "true"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  ####################################################################################################
-  # Trino
-  ####################################################################################################
-  trino:
-    profiles: [ "trino" ]
-    container_name: trino
-    hostname: trino
-    image: "trinodb/trino:425"
-    restart: always
-    ports:
-      - "8889:8889"
-    volumes:
-      - ./docker/trino/etc-coordinator:/etc/trino
-      - ./docker/trino/catalog:/etc/trino/catalog
-    depends_on:
-      - hive-metastore
-  trino-worker:
-    profiles: [ "trino-worker" ]
-    container_name: trino-worker
-    hostname: trino-worker
-    image: "trinodb/trino:425"
-    restart: always
-    volumes:
-      - ./docker/trino/etc-worker:/etc/trino
-      - ./docker/trino/catalog:/etc/trino/catalog
-    depends_on:
-      - trino
-
   ####################################################################################################
   # Dremio
   ####################################################################################################
@@ -193,48 +141,6 @@ services:
     image: projectnessie/nessie:0.67.0
     ports:
       - 19120:19120
-
-  ####################################################################################################
-  # Spark
-  ####################################################################################################
-  spark-iceberg:
-    profiles: [ "spark" ]
-    # build:
-    #   context: ./docker/spark/
-    #   dockerfile: Dockerfile-spark3.4
-    image: weslleybarboza/spark-3.4:latest
-    container_name: spark-iceberg
-    hostname: spark-iceberg
-    entrypoint: |
-      /bin/bash -c "
-      jupyter lab --notebook-dir=/opt/notebook --ip='*' --NotebookApp.token='' --NotebookApp.password='' --port=8888 --no-browser --allow-root
-      "
-    ports:
-      - "4040:4040"
-      - "8900:8888"
-      - "8901:8080"
-    depends_on:
-      - minio
-      - hive-metastore
-    environment:
-      - AWS_ACCESS_KEY_ID=minio
-      - AWS_SECRET_ACCESS_KEY=minio123
-      - AWS_REGION=us-east-1
-      - AWS_DEFAULT_REGION=us-east-1
-      - S3_ENDPOINT=http://minio:9000
-      - S3_PATH_STYLE_ACCESS=true
-    mem_limit: "8g"
-    mem_reservation: "512m"
-    cpus: "4"
-    cpuset: "4"
-    volumes:
-      - ./notebook:/opt/notebook
-      - ./docker/jupyter/jupyter_server_config.py:/root/.jupyter/jupyter_server_config.py
-      - ./docker/jupyter/themes.jupyterlab-settings:/root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings
-      - ./docker/spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf
-      - spark_binaries:/opt/spark/bin
-      - spark_jars:/opt/spark/jars
-      # - spark_python:/usr
 
   ####################################################################################################
   # Airflow
@@ -342,75 +248,6 @@ services:
       retries: 50
       start_period: 30s
     restart: always
-
-  ####################################################################################################
-  # Nifi
-  ####################################################################################################
-  nifi:
-    profiles: [ "nifi" ]
-    build:
-      context: ./docker/nifi/
-      dockerfile: dockerfile
-    # image: apache/nifi:latest
-    container_name: nifi
-    hostname: nifi
-    ports:
-      - '8443:8443'
-    volumes:
-      - ./docker/nifi/jdbc:/opt/jdbc
-      - nifi_data:/opt/nifi/data
-    #  - ./docker/nifi/certs:/opt/certs
-    #  - ./docker/nifi/logs:/opt/nifi/logs
-      - ./docker/nifi/properties:/opt/nifi/nifi-current/properties  # credentials, env-vars & spark-config property files
-      - nifi_database_repository:/opt/nifi/nifi-current/database_repository
-      - nifi_flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
-      - nifi_content_repository:/opt/nifi/nifi-current/content_repository
-      - nifi_provenance_repository:/opt/nifi/nifi-current/provenance_repository
-      - ./datasources:/opt/nifi/sources
-      - ./notebook:/opt/nifi/notebook/ # Mount scripts directory to nifi container (for spark script)
-      - spark_binaries:/opt/spark/bin
-      - spark_jars:/opt/spark/jars
-      # - spark_python:/usr
-    environment:
-      NIFI_WEB_HTTP_PORT: 8443
-      SINGLE_USER_CREDENTIALS_USERNAME: nifi
-      SINGLE_USER_CREDENTIALS_PASSWORD: nifi123
-      AWS_ACCESS_KEY_ID: minio
-      AWS_SECRET_ACCESS_KEY: minio123
-      AWS_REGION: us-east-1
-      AWS_DEFAULT_REGION: us-east-1
-      S3_ENDPOINT: http://minio:9000
-      S3_PATH_STYLE_ACCESS: true
-  nifi-registry:
-    profiles: [ "nifi-registry" ]
-    image: apache/nifi-registry:latest
-    container_name: nifi-registry
-    ports:
-      - '1808:18080'
-    volumes:
-     - ./docker/volume/nifi-registry/data:/data
-     - ./docker/volume/nifi-registry/database:/opt/nifi-registry/nifi-registry-current/database
-     - ./docker/volume/nifi-registry//flow_storage:/opt/nifi-registry/nifi-registry-current/flow_storage
-     - ./docker/volume/nifi-registry/nifi-registry:/opt/nifi-registry/nifi-registry-current/nifi-registry
-     - ./docker/volume/nifi-registry/certs:/opt/certs
-    environment:
-      NIFI_REGISTRY_WEB_HTTP_PORT: 18080
-      # NIFI_REGISTRY_FLOW_PROVIDER: git
-      # NIFI_REGISTRY_GIT_REMOTE_URL: https://github.com/weslleybarboza/nifi_registry.git
-      # NIFI_REGISTRY_GIT_USER: weslleybarboza
-      # NIFI_REGISTRY_GIT_PASSWORD: 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
-      # NIFI_REGISTRY_GIT_REPO: /opt/nifi-registry/nifi-registry-current/nifi-registry
-
-volumes:
-  nifi_jdbc:
-  nifi_data:
-  nifi_database_repository:
-  nifi_flowfile_repository:
-  nifi_content_repository:
-  nifi_provenance_repository:
-  spark_binaries:
-  spark_jars:
-  # spark_python:
 
 # Configure Network
 networks:

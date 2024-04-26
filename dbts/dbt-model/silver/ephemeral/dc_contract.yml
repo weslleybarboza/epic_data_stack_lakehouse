@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: dc_contract
+    description: '{{ doc("dc_contract_agg") }}'
+    tags:
+      - silver
+    columns:
+      - name: system_source
+      - name: natural_key
+      - name: identification
+
+      - name: type
+        description: '{{ doc("dc_contract_type") }}'
+        tests:
+          - accepted_values:
+              values:
+                - Determinate
+                - Indeterminate
+
+      - name: status
+        description: '{{ doc("dc_contract_status") }}'
+        tests:
+          - accepted_values:
+              values:
+                - Active
+                - Inactive

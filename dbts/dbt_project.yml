@@ -23,6 +23,7 @@ clean-targets:
 # Configure variables
 vars:
   debug_logs: "{{ env_var('DBT_EDR_DEBUG', True) }}"
+  "dbt_date:time_zone": "Europe/Malta"  
 
 # Configure models
 models:
@@ -33,10 +34,15 @@ models:
       +materialized: view
     silver:
       +schema: silver
-      +materialized: table 
+      dimension:
+        +materialized: table
+      fact:
+        +materialized: table
+      ephemeral:
+        +materialized: ephemeral
     gold:
       +schema: gold
-      +materialized: table
+      +materialized: table      
 
 # Configure dispatches
 dispatch:

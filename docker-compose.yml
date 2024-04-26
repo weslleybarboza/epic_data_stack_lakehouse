@@ -63,7 +63,7 @@ services:
     container_name: postgres
     hostname: postgres
     image: postgres:11
-    profiles: [ "storage", "spark", "airflow"]
+    profiles: [ "storage", "spark", "airflow", "dbt"]
     ports:
       - "5432:5432"
     environment:
@@ -81,7 +81,7 @@ services:
     container_name: minio
     hostname: minio
     image: 'minio/minio'
-    profiles: [ "storage","spark", "nifi" ]    
+    profiles: [ "storage","spark", "nifi", "dbt" ]    
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -123,7 +123,7 @@ services:
       context: ./docker/hive-metastore/
       dockerfile: Dockerfile
     image: 1ambda/lakehouse:hive-metastore-3.1.2
-    profiles: [ "storage" ,"spark"]    
+    profiles: [ "storage" ,"spark", "dbt"]    
     ports:
       - '9083:9083' # Metastore Thrift
     environment:
@@ -144,7 +144,7 @@ services:
   # Trino
   ####################################################################################################
   trino:
-    profiles: [ "trino", "storage" ]
+    profiles: [ "trino", "storage", "dbt" ]
     container_name: trino
     hostname: trino
     image: "trinodb/trino:425"
@@ -157,7 +157,7 @@ services:
     depends_on:
       - hive-metastore
   trino-worker:
-    profiles: [ "trino-worker", "storage" ]
+    profiles: [ "trino-worker", "storage", "dbt" ]
     container_name: trino-worker
     hostname: trino-worker
     image: "trinodb/trino:425"

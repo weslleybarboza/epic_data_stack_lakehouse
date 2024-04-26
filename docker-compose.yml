@@ -186,7 +186,7 @@ services:
   # Nessie
   ####################################################################################################
   nessie:
-    profiles: [ "catalog" ]
+    profiles: [ "storage", "dbt", "dremio" ]
     container_name: nessie
     hostname: nessie    
     image: projectnessie/nessie:0.67.0

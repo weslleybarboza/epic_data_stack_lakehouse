@@ -104,7 +104,9 @@ services:
       /usr/bin/mc mb --quiet myminio/landing-zone/files || true;
       /usr/bin/mc mb --quiet myminio/landing-zone/database || true;
       
-      /usr/bin/mc mb --quiet myminio/lakehouse || true;
+      /usr/bin/mc mb --quiet myminio/lakehouse/bronze || true;
+      /usr/bin/mc mb --quiet myminio/lakehouse/silver || true;
+      /usr/bin/mc mb --quiet myminio/lakehouse/gold || true;      
       "
     environment:
       - AWS_ACCESS_KEY_ID=minio
@@ -182,7 +184,7 @@ services:
         condition: service_completed_successfully
   airflow-worker:
     <<: *airflow-common
-    profiles: [ "airflow" ]
+    profiles: [ "airflow", "all" ]
     hostname: airflow-worker
     container_name: airflow-worker
     command: celery worker

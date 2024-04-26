@@ -60,7 +60,7 @@ services:
     container_name: postgres
     hostname: postgres
     image: postgres:11
-    profiles: [ "storage",  "airflow", "dbt", "all"]
+    profiles: ["airflow", "all"]
     ports:
       - "5432:5432"
     environment:
@@ -126,6 +126,7 @@ services:
     platform: linux/x86_64
     volumes:
       - ./docker/dremio/conf:/opt/dremio/conf
+      - ./docker/volume/dremio:/opt/dremio/data
     ports:
       - 9047:9047
       - 31010:31010

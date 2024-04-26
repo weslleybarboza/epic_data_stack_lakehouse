@@ -9,3 +9,4 @@ apache-airflow-providers-docker
 astronomer-cosmos
 apache-airflow-providers-apache-spark
 dbt-dremio
+apache-airflow[amazon]

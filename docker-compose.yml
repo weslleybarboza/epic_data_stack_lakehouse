@@ -44,6 +44,7 @@ x-airflow-common:
     - ./notebook:/opt/spark/notebook # Mount notebook directory to airflow containers (for spark script)
     - ./docker/spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf # Default configs for spark
     - /var/run/docker.sock:/var/run/docker.sock
+    -  C:/Users/matsch/Downloads/FTP_TESTING:/ftp_files
   user: root
   depends_on:
     &airflow-common-depends-on
@@ -231,7 +232,9 @@ services:
       - ./docker/jupyter/jupyter_server_config.py:/root/.jupyter/jupyter_server_config.py
       - ./docker/jupyter/themes.jupyterlab-settings:/root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings
       - ./docker/spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf
-      # - ./docker/spark/keys:/root/.ssh
+      - spark_binaries:/opt/spark/bin
+      - spark_jars:/opt/spark/jars
+      # - spark_python:/usr
 
   ####################################################################################################
   # Airflow
@@ -345,7 +348,10 @@ services:
   ####################################################################################################
   nifi:
     profiles: [ "nifi" ]
-    image: apache/nifi:latest
+    build:
+      context: ./docker/nifi/
+      dockerfile: dockerfile
+    # image: apache/nifi:latest
     container_name: nifi
     hostname: nifi
     ports:
@@ -355,16 +361,26 @@ services:
       - nifi_data:/opt/nifi/data
     #  - ./docker/nifi/certs:/opt/certs
     #  - ./docker/nifi/logs:/opt/nifi/logs
-      - ./docker/nifi/properties:/opt/nifi/nifi-current/properties  #credentials.properties
+      - ./docker/nifi/properties:/opt/nifi/nifi-current/properties  # credentials, env-vars & spark-config property files
       - nifi_database_repository:/opt/nifi/nifi-current/database_repository
       - nifi_flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
       - nifi_content_repository:/opt/nifi/nifi-current/content_repository
       - nifi_provenance_repository:/opt/nifi/nifi-current/provenance_repository
       - ./datasources:/opt/nifi/sources
+      - ./notebook:/opt/nifi/notebook/ # Mount scripts directory to nifi container (for spark script)
+      - spark_binaries:/opt/spark/bin
+      - spark_jars:/opt/spark/jars
+      # - spark_python:/usr
     environment:
       NIFI_WEB_HTTP_PORT: 8443
       SINGLE_USER_CREDENTIALS_USERNAME: nifi
       SINGLE_USER_CREDENTIALS_PASSWORD: nifi123
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: minio123
+      AWS_REGION: us-east-1
+      AWS_DEFAULT_REGION: us-east-1
+      S3_ENDPOINT: http://minio:9000
+      S3_PATH_STYLE_ACCESS: true
   nifi-registry:
     profiles: [ "nifi-registry" ]
     image: apache/nifi-registry:latest
@@ -392,6 +408,9 @@ volumes:
   nifi_flowfile_repository:
   nifi_content_repository:
   nifi_provenance_repository:
+  spark_binaries:
+  spark_jars:
+  # spark_python:
 
 # Configure Network
 networks:

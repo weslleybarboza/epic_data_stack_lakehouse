@@ -1,0 +1,22 @@
+# Use the Apache NiFi image as the base image
+FROM apache/nifi:latest
+
+# Update the package repositories and install necessary packages
+USER root
+RUN apt-get update && apt-get install -y python3.10 python3-pip
+
+# Set the working directory for the project
+WORKDIR /opt/nifi/my_project
+
+# Set the PATH environment variable
+ENV PATH="/opt/spark/sbin:/opt/spark/bin:${PATH}"
+
+# Copy requirements.txt into the image
+COPY requirements.txt /opt/nifi/my_project/
+
+# Set the Python environment variables and install Python packages
+ENV PYTHONPATH="/opt/nifi/python:${PYTHONPATH}"
+RUN pip3 install --no-cache-dir -r ./requirements.txt
+
+# Switch back to the default NiFi user
+USER nifi

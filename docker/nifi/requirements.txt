@@ -1,0 +1,5 @@
+jupyterlab==4.0.5
+pyiceberg[pyarrow,duckdb,pandas]==0.4.0
+jupysql==0.10.0
+boto3
+pyspark==3.4.1

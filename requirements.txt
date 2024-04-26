@@ -8,3 +8,4 @@ python-dotenv
 apache-airflow-providers-docker
 astronomer-cosmos
 apache-airflow-providers-apache-spark
+apache-airflow[amazon]

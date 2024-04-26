@@ -1,2 +1,0 @@
-<name>hive.metastore.uris</name>
-<value>thrift://metastore1:9083,thrift://metastore2:9083</value>

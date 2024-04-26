@@ -60,7 +60,7 @@ services:
     container_name: postgres
     hostname: postgres
     image: postgres:11
-    profiles: [ "storage",  "airflow", "dbt"]
+    profiles: [ "storage",  "airflow", "dbt", "all"]
     ports:
       - "5432:5432"
     environment:
@@ -79,7 +79,7 @@ services:
     container_name: minio
     hostname: minio
     image: 'minio/minio'
-    profiles: [ "storage", "dbt" ]    
+    profiles: [ "storage", "dbt" , "all"]    
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -93,7 +93,7 @@ services:
   
   minio-job:
     image: 'minio/mc'
-    profiles: [ "storage" ]    
+    profiles: [ "storage", "all" ]    
     container_name: minio-job
     hostname: minio-job
     entrypoint: |
@@ -119,7 +119,7 @@ services:
   # Compute engine
   ####################################################################################################
   dremio:
-    profiles: ["dremio", "storage", "dbt"]
+    profiles: ["dremio", "storage", "dbt", "all"]
     container_name: dremio
     hostname: dremio
     image: dremio/dremio-oss:latest
@@ -134,7 +134,7 @@ services:
   # Catalog
   ####################################################################################################
   nessie:
-    profiles: [ "storage", "dbt", "dremio" ]
+    profiles: [ "storage", "dbt", "dremio" , "all"]
     container_name: nessie
     hostname: nessie    
     image: projectnessie/nessie:0.67.0
@@ -146,7 +146,7 @@ services:
   ####################################################################################################
   airflow-webserver:
     <<: *airflow-common
-    profiles: [ "airflow" ]
+    profiles: [ "airflow" , "all"]
     container_name: airflow-webserver
     command: webserver
     ports:
@@ -164,7 +164,7 @@ services:
         condition: service_completed_successfully
   airflow-scheduler:
     <<: *airflow-common
-    profiles: [ "airflow" ]
+    profiles: [ "airflow" , "all"]
     container_name: airflow-scheduler
     command: scheduler
     healthcheck:
@@ -214,7 +214,7 @@ services:
       - airflow
   airflow-init:
     <<: *airflow-common
-    profiles: [ "airflow" ]
+    profiles: [ "airflow" , "all"]
     container_name: airflow-init
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
@@ -234,7 +234,7 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
   redis:
-    profiles: [ "airflow" ]
+    profiles: [ "airflow" , "all"]
     container_name: redis
     hostname: redis
     image: redis:latest

@@ -100,10 +100,11 @@ services:
       /bin/bash -c "
       sleep 5;
       /usr/bin/mc config --quiet host add myminio http://minio:9000 minio minio123 || true;
-      /usr/bin/mc mb --quiet myminio/prd-lakehouse || true;
-      /usr/bin/mc mb --quiet myminio/dev-lakehouse || true;
-      /usr/bin/mc mb --quiet myminio/prd-landing-zone || true;
-      /usr/bin/mc mb --quiet myminio/dev-landing-zone || true;
+      /usr/bin/mc mb --quiet myminio/landing-zone || true;
+      /usr/bin/mc mb --quiet myminio/landing-zone/files || true;
+      /usr/bin/mc mb --quiet myminio/landing-zone/database || true;
+      
+      /usr/bin/mc mb --quiet myminio/lakehouse || true;
       "
     environment:
       - AWS_ACCESS_KEY_ID=minio

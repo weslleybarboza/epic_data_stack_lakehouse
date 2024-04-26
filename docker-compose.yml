@@ -41,10 +41,7 @@ x-airflow-common:
     - ./docker/airflow/plugins:/opt/airflow/plugins
     - ./docker/volume/airflow/logs:/opt/airflow/logs
     - ./datasources:/opt/airflow/sources  # Mount datasources directory to airflow containers
-    - ./notebook:/opt/spark/notebook # Mount notebook directory to airflow containers (for spark script)
-    - ./docker/spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf # Default configs for spark
-    - /var/run/docker.sock:/var/run/docker.sock
-    -  C:/Users/matsch/Downloads/FTP_TESTING:/ftp_files
+    - ./docker/volume/ftp_files:/ftp_files # used as a storage path for the python ftp server 
   user: root
   depends_on:
     &airflow-common-depends-on
@@ -63,7 +60,7 @@ services:
     container_name: postgres
     hostname: postgres
     image: postgres:11
-    profiles: [ "storage", "spark", "airflow", "dbt"]
+    profiles: [ "storage",  "airflow", "dbt"]
     ports:
       - "5432:5432"
     environment:
@@ -77,11 +74,12 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
+  
   minio:
     container_name: minio
     hostname: minio
     image: 'minio/minio'
-    profiles: [ "storage","spark", "nifi", "dbt" ]    
+    profiles: [ "storage", "dbt" ]    
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -92,9 +90,10 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - ./docker/volume/minio:/data
+  
   minio-job:
     image: 'minio/mc'
-    profiles: [ "storage" , "nifi"]    
+    profiles: [ "storage" ]    
     container_name: minio-job
     hostname: minio-job
     entrypoint: |
@@ -117,7 +116,7 @@ services:
       - minio
 
   ####################################################################################################
-  # Dremio
+  # Compute engine
   ####################################################################################################
   dremio:
     profiles: ["dremio", "storage", "dbt"]
@@ -132,7 +131,7 @@ services:
       - 31010:31010
       - 32010:32010
   ####################################################################################################
-  # Nessie
+  # Catalog
   ####################################################################################################
   nessie:
     profiles: [ "storage", "dbt", "dremio" ]
